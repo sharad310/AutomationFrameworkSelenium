@@ -6,6 +6,8 @@
 package com.anhtester.utils;
 
 import org.testng.Reporter;
+import org.testng.ITestResult;
+import org.testng.xml.XmlTest;
 
 import static com.anhtester.constants.FrameworkConstants.BROWSER;
 
@@ -18,13 +20,22 @@ public final class BrowserInfoUtils {
     private static final String OS = System.getProperty("os.name").toLowerCase();
 
     public static String getBrowserInfo() {
-        String browser = "";
-        if (Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("BROWSER") == null) {
-            browser = BROWSER.toUpperCase();
-        } else {
-            browser = Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("BROWSER").trim().toUpperCase();
+        ITestResult currentTestResult = Reporter.getCurrentTestResult();
+        if (currentTestResult == null || currentTestResult.getTestContext() == null) {
+            return BROWSER.toUpperCase();
         }
-        return browser;
+
+        XmlTest currentXmlTest = currentTestResult.getTestContext().getCurrentXmlTest();
+        if (currentXmlTest == null) {
+            return BROWSER.toUpperCase();
+        }
+
+        String configuredBrowser = currentXmlTest.getParameter("BROWSER");
+        if (configuredBrowser == null || configuredBrowser.trim().isEmpty()) {
+            return BROWSER.toUpperCase();
+        }
+
+        return configuredBrowser.trim().toUpperCase();
     }
 
     public static String getOSInfo() {
